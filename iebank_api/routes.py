@@ -21,7 +21,6 @@ def skull():
         text = text +'<br/>Database password:' + db.engine.url.password
     return text
 
-
 @app.route('/accounts', methods=['POST'])
 def create_account():
     name = request.json['name']
@@ -39,19 +38,19 @@ def get_accounts():
 
 @app.route('/accounts/<int:id>', methods=['GET'])
 def get_account(id):
-    account = Account.query.get(id)
+    account = db.session.get(Account, id)
     return format_account(account)
 
 @app.route('/accounts/<int:id>', methods=['PUT'])
 def update_account(id):
-    account = Account.query.get(id)
+    account = db.session.get(Account, id)
     account.name = request.json['name']
     db.session.commit()
     return format_account(account)
 
 @app.route('/accounts/<int:id>', methods=['DELETE'])
 def delete_account(id):
-    account = Account.query.get(id)
+    account = db.session.get(Account, id)
     db.session.delete(account)
     db.session.commit()
     return format_account(account)
