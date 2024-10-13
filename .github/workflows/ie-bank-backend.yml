@@ -3,7 +3,7 @@ name: ie-bank-backend
 on:
   push:
   pull_request:
-    branches: [ "main", "taline-backend"]
+    branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
@@ -16,15 +16,15 @@ env:
 
 jobs:
   build:
-    
+
     runs-on: ubuntu-latest
     env:
       ENV: ghci
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python 3.11
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
       with:
         python-version: "3.11"
     - name: Upgrade pip
@@ -48,10 +48,10 @@ jobs:
       with:
         name: python-app
         path: |
-          . 
+          .
 
   deploy-dev:
-    if: github.event_name == 'push' 
+    if: github.ref != 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     needs: build
     environment:
@@ -64,20 +64,20 @@ jobs:
       with:
         name: python-app
         path: .
-    
+
     - uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: 'Deploy to Azure Web App'
-      uses: azure/webapps-deploy@v2
+    - name: 'Deploy to Azure Web App Development'
+      uses: azure/webapps-deploy@v3
       id: deploy-to-webapp
       with:
         app-name: ${{ env.BACKEND_WEBAPP_DEV }}
         package: .
-  
+
   deploy-uat:
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     needs: build
     environment:
